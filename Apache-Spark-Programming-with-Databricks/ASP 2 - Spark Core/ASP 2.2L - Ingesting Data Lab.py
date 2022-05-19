@@ -36,7 +36,7 @@ single_product_csv_file_path = f"{datasets_dir}/products/products.csv/part-00000
 print(FILL_IN)
 
 products_csv_path = f"{datasets_dir}/products/products.csv"
-products_df = FILL_IN
+products_df = spark.read.option("header", True).option("sep", ",").option("inferrSchema", True).csv(products_csv_path)
 
 products_df.printSchema()
 
@@ -51,15 +51,29 @@ print("All test pass")
 
 # COMMAND ----------
 
+products_df.printSchema()
+
+# COMMAND ----------
+
 # MAGIC %md ### 2. Read with user-defined schema
 # MAGIC Define schema by creating a **`StructType`** with column names and data types
 
 # COMMAND ----------
 
 # TODO
-user_defined_schema = FILL_IN
+from pyspark.sql.types import StructType, StringType, StructField
 
-products_df2 = FILL_IN
+user_defined_schema = StructType([
+    StructField("item_id", StringType(), True),
+    StructField("name", StringType(), True),
+    StructField("price", StringType(), True)
+])
+
+products_df2 = spark.read.option("header", True).option("sep", ",").schema(user_defined_schema).csv(products_csv_path)
+
+# COMMAND ----------
+
+products_df2.first()
 
 # COMMAND ----------
 
@@ -87,9 +101,9 @@ print("All test pass")
 # COMMAND ----------
 
 # TODO
-ddl_schema = FILL_IN
+ddl_schema = "item_id STRING, name STRING, price STRING"
 
-products_df3 = FILL_IN
+products_df3 = spark.read.option("header", True).option("sep", ",").schema(ddl_schema).csv(products_csv_path)
 
 # COMMAND ----------
 
@@ -109,7 +123,7 @@ print("All test pass")
 
 # TODO
 products_output_path = working_dir + "/delta/products"
-products_df.FILL_IN
+products_df.write.format("delta").save(products_output_path)
 
 # COMMAND ----------
 
